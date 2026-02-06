@@ -2,14 +2,14 @@
 
 #define WIDTH 80
 #define HEIGHT 25
-#define PADDLE_SIZE 3
+#define RACKET_SIZE 3
 #define WIN_SCORE 21
 
 void clear_screen(void) {
     printf("\033[H\033[J");
 }
 
-void draw_field(int ball_x, int ball_y, int paddle1_y, int paddle2_y) {
+void draw_field(int ball_x, int ball_y, int racket1_y, int racket2_y) {
     /* Верхняя граница */
     for (int i = 0; i < WIDTH + 2; ++i) {
         printf("#");
@@ -22,13 +22,13 @@ void draw_field(int ball_x, int ball_y, int paddle1_y, int paddle2_y) {
         
         for (int x = 0; x < WIDTH; ++x) {
             int is_ball = (x == ball_x && y == ball_y);
-            int is_paddle1 = (x == 1 && y >= paddle1_y && y < paddle1_y + PADDLE_SIZE);
-            int is_paddle2 = (x == WIDTH - 2 && y >= paddle2_y && y < paddle2_y + PADDLE_SIZE);
+            int is_racket1 = (x == 1 && y >= racket1_y && y < racket1_y + RACKET_SIZE);
+            int is_racket2 = (x == WIDTH - 2 && y >= racket2_y && y < racket2_y + RACKET_SIZE);
             
             /* Если мяч и ракетка в одной ячейке - показываем мяч */
             if (is_ball) {
                 printf("O");
-            } else if (is_paddle1 || is_paddle2) {
+            } else if (is_racket1 || is_racket2) {
                 printf("|");
             } else {
                 printf(" ");
@@ -65,8 +65,8 @@ int main(void) {
     int ball_dy = 0;  /* Начинаем с горизонтального движения */
     
     /* Координаты ракеток */
-    int paddle1_y = HEIGHT / 2 - PADDLE_SIZE / 2;
-    int paddle2_y = HEIGHT / 2 - PADDLE_SIZE / 2;
+    int racket1_y = HEIGHT / 2 - RACKET_SIZE / 2;
+    int racket2_y = HEIGHT / 2 - RACKET_SIZE / 2;
     
     /* Счет */
     int score1 = 0;
@@ -82,7 +82,7 @@ int main(void) {
     /* Основной игровой цикл */
     while (score1 < WIN_SCORE && score2 < WIN_SCORE) {
         clear_screen();
-        draw_field(ball_x, ball_y, paddle1_y, paddle2_y);
+        draw_field(ball_x, ball_y, racket1_y, racket2_y);
         
         printf("Счет: %d - %d\n", score1, score2);
         printf("Ход игрока %d. Введите команду: ", current_player);
@@ -102,13 +102,13 @@ int main(void) {
             /* Обработка ввода текущего игрока */
             if (current_player == 1) {
                 if (input == 'a' || input == 'A') {
-                    if (paddle1_y > 0) {
-                        --paddle1_y;
+                    if (racket1_y > 0) {
+                        --racket1_y;
                     }
                     turn_completed = 1;
                 } else if (input == 'z' || input == 'Z') {
-                    if (paddle1_y < HEIGHT - PADDLE_SIZE) {
-                        ++paddle1_y;
+                    if (racket1_y < HEIGHT - RACKET_SIZE) {
+                        ++racket1_y;
                     }
                     turn_completed = 1;
                 } else if (input == ' ') {
@@ -124,13 +124,13 @@ int main(void) {
                 }
             } else { /* current_player == 2 */
                 if (input == 'k' || input == 'K') {
-                    if (paddle2_y > 0) {
-                        --paddle2_y;
+                    if (racket2_y > 0) {
+                        --racket2_y;
                     }
                     turn_completed = 1;
                 } else if (input == 'm' || input == 'M') {
-                    if (paddle2_y < HEIGHT - PADDLE_SIZE) {
-                        ++paddle2_y;
+                    if (racket2_y < HEIGHT - RACKET_SIZE) {
+                        ++racket2_y;
                     }
                     turn_completed = 1;
                 } else if (input == ' ') {
@@ -167,12 +167,12 @@ int main(void) {
         
         /* Проверка столкновения с левой ракеткой */
         if (new_ball_x == 1) {
-            if (new_ball_y >= paddle1_y && new_ball_y < paddle1_y + PADDLE_SIZE) {
+            if (new_ball_y >= racket1_y && new_ball_y < racket1_y + RACKET_SIZE) {
                 /* Отскок от ракетки с изменением угла */
                 ball_dx = -ball_dx;
                 
                 /* Угол отскока зависит от того, в какую часть ракетки попал мяч */
-                int hit_pos = new_ball_y - paddle1_y;
+                int hit_pos = new_ball_y - racket1_y;
                 if (hit_pos == 0) { /* Верхняя часть ракетки */
                     ball_dy = -1;
                 } else if (hit_pos == 1) { /* Центр ракетки */
@@ -196,12 +196,12 @@ int main(void) {
         
         /* Проверка столкновения с правой ракеткой */
         if (new_ball_x == WIDTH - 2) {
-            if (new_ball_y >= paddle2_y && new_ball_y < paddle2_y + PADDLE_SIZE) {
+            if (new_ball_y >= racket2_y && new_ball_y < racket2_y + RACKET_SIZE) {
                 /* Отскок от ракетки с изменением угла */
                 ball_dx = -ball_dx;
                 
                 /* Угол отскока зависит от того, в какую часть ракетки попал мяч */
-                int hit_pos = new_ball_y - paddle2_y;
+                int hit_pos = new_ball_y - racket2_y;
                 if (hit_pos == 0) { /* Верхняя часть ракетки */
                     ball_dy = -1;
                 } else if (hit_pos == 1) { /* Центр ракетки */
@@ -251,7 +251,7 @@ int main(void) {
     
     /* Финальный экран */
     clear_screen();
-    draw_field(ball_x, ball_y, paddle1_y, paddle2_y);
+    draw_field(ball_x, ball_y, racket1_y, racket2_y);
     
     if (score1 >= WIN_SCORE) {
         print_winner(1, score1, score2);
